@@ -123,41 +123,25 @@ class _HomeScreenState extends State<HomeScreen> {
               
               try {
                 // Montrer un indicateur de chargement
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Row(
-                      children: [
-                        SizedBox(
-                          width: 20, 
-                          height: 20, 
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Text('Suppression en cours...'),
-                      ],
-                    ),
-                    duration: Duration(seconds: 1),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-                
-                final success = await Provider.of<ProductProvider>(context, listen: false)
-                    .deleteProduct(product.uuid);
-                
-                if (success && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
                     SnackBar(
-                      content: Row(
+                      content: const Row(
                         children: [
-                          const Icon(Icons.check_circle, color: Colors.white),
-                          const SizedBox(width: 16),
-                          const Text('Produit supprimé avec succès'),
+                          SizedBox(
+                            width: 20, 
+                            height: 20, 
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Text('Suppression en cours...'),
                         ],
                       ),
-                      backgroundColor: Colors.green,
+                      duration: const Duration(milliseconds: 800),
                       behavior: SnackBarBehavior.floating,
                       margin: const EdgeInsets.all(16),
                       shape: RoundedRectangleBorder(
@@ -165,6 +149,36 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   );
+                
+                final success = await Provider.of<ProductProvider>(context, listen: false)
+                    .deleteProduct(product.uuid);
+                
+                if (success && context.mounted) {
+                  // Attendre un court délai pour s'assurer que le SnackBar précédent a disparu
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              const Icon(Icons.check_circle, color: Colors.white),
+                              const SizedBox(width: 16),
+                              const Text('Produit supprimé avec succès'),
+                            ],
+                          ),
+                          backgroundColor: Colors.green,
+                          behavior: SnackBarBehavior.floating,
+                          margin: const EdgeInsets.all(16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          duration: const Duration(seconds: 3), // Plus long pour le message de succès
+                        ),
+                      );
+                  }
                 } else if (context.mounted) {
                   final errorMsg = Provider.of<ProductProvider>(context, listen: false).error;
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -210,8 +224,8 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.delete_forever),
             label: const Text('Supprimer'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
               foregroundColor: Colors.white,
+              backgroundColor: Colors.red,
             ),
           ),
         ],
