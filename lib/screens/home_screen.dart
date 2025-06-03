@@ -122,63 +122,53 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pop(context);
               
               try {
-                // Montrer un indicateur de chargement
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(
+                // Supprimer tout message existant  
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                
+                // Afficher l'indicateur de chargement dans un widget simple plutôt qu'un SnackBar
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return const Dialog(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  },
+                );
+                
+                // Effectuer la suppression
+                final success = await Provider.of<ProductProvider>(context, listen: false)
+                    .deleteProduct(product.uuid);
+                
+                // Fermer le dialogue de chargement
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+                
+                // Afficher le message de succès ou d'erreur
+                if (success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Row(
+                      content: Row(
                         children: [
-                          SizedBox(
-                            width: 20, 
-                            height: 20, 
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(width: 16),
-                          Text('Suppression en cours...'),
+                          const Icon(Icons.check_circle, color: Colors.white),
+                          const SizedBox(width: 16),
+                          const Text('Produit supprimé avec succès'),
                         ],
                       ),
-                      duration: const Duration(milliseconds: 800),
+                      backgroundColor: Colors.green,
                       behavior: SnackBarBehavior.floating,
                       margin: const EdgeInsets.all(16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      duration: const Duration(seconds: 3), // Durée plus longue pour le message de succès
                     ),
                   );
-                
-                final success = await Provider.of<ProductProvider>(context, listen: false)
-                    .deleteProduct(product.uuid);
-                
-                if (success && context.mounted) {
-                  // Attendre un court délai pour s'assurer que le SnackBar précédent a disparu
-                  await Future.delayed(const Duration(milliseconds: 500));
-                  
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context)
-                      ..hideCurrentSnackBar()
-                      ..showSnackBar(
-                        SnackBar(
-                          content: Row(
-                            children: [
-                              const Icon(Icons.check_circle, color: Colors.white),
-                              const SizedBox(width: 16),
-                              const Text('Produit supprimé avec succès'),
-                            ],
-                          ),
-                          backgroundColor: Colors.green,
-                          behavior: SnackBarBehavior.floating,
-                          margin: const EdgeInsets.all(16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          duration: const Duration(seconds: 3), // Plus long pour le message de succès
-                        ),
-                      );
-                  }
                 } else if (context.mounted) {
                   final errorMsg = Provider.of<ProductProvider>(context, listen: false).error;
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -374,7 +364,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                                           color: Colors.white,
                                                         ),
                                                         onPressed: () {
-                                                          print('Showing delete confirmation for: ${product.name} (${product.uuid})');
                                                           _showDeleteConfirmation(context, product);
                                                         },
                                                         iconSize: 20,
