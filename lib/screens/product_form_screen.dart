@@ -83,18 +83,16 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                       TextFormField(
                         controller: _descriptionController,
                         decoration: const InputDecoration(
-                          labelText: 'Description',
+                          labelText: 'Description (optionnel)',
                           prefixIcon: Icon(Icons.description),
                           hintText: 'Décrivez votre produit...',
                           alignLabelWithHint: true,
                         ),
                         textCapitalization: TextCapitalization.sentences,
                         maxLines: 3,
+                        // La description est maintenant optionnelle
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Veuillez entrer une description';
-                          }
-                          return null;
+                          return null; // Accepte les descriptions vides
                         },
                       ),
                       const SizedBox(height: 16),

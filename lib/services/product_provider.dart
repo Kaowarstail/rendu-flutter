@@ -40,8 +40,7 @@ class ProductProvider with ChangeNotifier {
     _setLoading(true);
     
     try {
-      final createdProduct = await _productService.createProduct(product);
-      print('Product created with UUID: ${createdProduct.uuid}');
+      await _productService.createProduct(product);
       await fetchProducts();
       _error = '';
       return true;
@@ -73,9 +72,6 @@ class ProductProvider with ChangeNotifier {
     _setLoading(true);
     
     try {
-      print('Attempting to delete product with UUID: $uuid');
-      
-      
       if (uuid.isEmpty) {
         _error = 'Erreur: UUID du produit est vide';
         return false;
@@ -83,19 +79,13 @@ class ProductProvider with ChangeNotifier {
       
       await _productService.deleteProduct(uuid);
       
-      
-      final countBefore = _products.length;
       _products.removeWhere((product) => product.uuid == uuid);
-      final countAfter = _products.length;
-      
-      print('Removed product from local list: ${countBefore - countAfter} items removed');
       
       notifyListeners();
       _error = '';
       return true;
     } catch (e) {
       _error = 'Erreur lors de la suppression du produit: ${e.toString()}';
-      print('Error in provider deleteProduct: $_error');
       return false;
     } finally {
       _setLoading(false);

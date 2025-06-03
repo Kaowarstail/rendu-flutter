@@ -121,8 +121,6 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () async {
               Navigator.pop(context);
               
-              print('Deleting product: ${product.uuid} - ${product.name}');
-              
               try {
                 // Montrer un indicateur de chargement
                 ScaffoldMessenger.of(context).showSnackBar(

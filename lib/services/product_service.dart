@@ -63,22 +63,17 @@ class ProductService {
     }
     
     final deleteUrl = '$baseUrl/$uuid';
-    print('DELETE request to: $deleteUrl');
     
     try {
       final response = await http.delete(
         Uri.parse(deleteUrl),
         headers: {'Content-Type': 'application/json'},
       );
-      
-      print('DELETE response status: ${response.statusCode}');
-      print('DELETE response body: ${response.body}');
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw Exception('Failed to delete product: Status ${response.statusCode}');
       }
     } catch (e) {
-      print('Error deleting product: $e');
       rethrow;
     }
   }
